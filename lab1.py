@@ -142,6 +142,14 @@ def rep(f):
     return foldr(lambda seq, g: lambda x: seq(g(x)), lambda x:x, f)
 print(rep(lambda x:x*x)(2))
 """
+def rep(f, n):
+    if n > 0:
+        return lambda x: f(rep(f,n-1)(x))
+    else:
+        return lambda x:x
+
+print(rep(lambda x:x*x, 2)(5))
+
 
 def compose(f, g):
     return lambda x: f(g(x))
