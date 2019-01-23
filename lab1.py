@@ -122,44 +122,27 @@ def reverse_l(seq):
 
 """
 1.5
-
-F: f(x) --> f^n(x)
-"""
-"""
-def repeat(f, n):
-    if n == 0:
-        return lambda n: 1
-    def iter(n, result):
-        if n == 1:
-            return f
-        else:
-            return iter(n-1, f)
-    return iter(n, f)
-
-#print(repeat(lambda n:n*n, 2)(5))
-
-def rep(f):
-    return foldr(lambda seq, g: lambda x: seq(g(x)), lambda x:x, f)
-print(rep(lambda x:x*x)(2))
 """
 def rep(f, n):
     if n > 0:
         return lambda x: f(rep(f,n-1)(x))
     else:
         return lambda x:x
-
-print(rep(lambda x:x*x, 2)(5))
+#print(rep(lambda x:x*x, 2)(5))
 
 
 def compose(f, g):
     return lambda x: f(g(x))
+#print(compose(lambda n: n+3, lambda m: m*m)(2))
 
-#print(compose(lambda n: n+1, lambda m: m*m)(2))
 
-
-def repeated_application():
-    pass
-
+def repeated_application(f, n):
+    return accumulate(compose, lambda x:x, lambda x:f, 1, lambda x:x+1, n)
+#print(repeated_application(lambda n:n**n, 2)(5))
+"""
+b) 
+c)
+"""
 
 """
 1.6
