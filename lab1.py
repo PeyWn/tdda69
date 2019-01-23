@@ -155,6 +155,56 @@ def smooth(f):
 
 def n_fold_smooth(f, n):
     return rep(smooth, n)(f)
-print(n_fold_smooth(lambda x:x*x, 5)(4))
+#print(n_fold_smooth(lambda x:x*x, 5)(4))
+
+
+"""
+2.1
+Applicative-order language all the arguments procedures are evaluated when 
+the procedure is applied. In contrast, normal-order languages delay evaluation 
+of procedure arguments until the actual argument values are needed.
+Read more.
+"""
+
+"""
+2.2
+"""
+x = 10
+def f():
+    print("In f: ", x)
+def g(x):
+    print("In g: ", x)
+    f()
+def keep_val(value):
+    def f():
+        print("--- x={0}, value={1}\n".format(x, value))
+    return f
+"""
+a)
+print_mess = keep_val("Stored")
+value = "New and updated."
+print_mess()
+g(5000)
+x = 0
+g(5000)
+
+b)
+???
+
+c)
+Lexical scoping, (static scoping) --> Reach variabler declared in same block. 
+Dynamic scoping --> Reach variables outside block, e.g. f reaches g´s scope.
+Output:
+--- x=10, value=New and Updated
+('In g: ', 5000)
+('In f: ', 5000)
+('In g: ', 5000)
+('In f: ', 5000)
+"""
+
+
+"""
+2.3
+"""
 
 
