@@ -236,8 +236,14 @@ def make_account(balance, r):
             res = (t-last_transaction)*r*balance
             last_transaction = t
             return res
-
-
     public_methods = {'withdraw' : withdraw, 'deposit' : deposit, 'get_value' : get_value}
     return public_methods
+"""
+b) ??? 
+"""
+
+
+"""
+
+"""
 
