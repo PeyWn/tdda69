@@ -206,5 +206,23 @@ Output:
 """
 2.3
 """
+from account import AccountError
 
+def make_account(balance):
+    def withdraw(amount):
+        nonlocal balance
+        if balance >= amount:
+            balance = balance - amount
+        else:
+            raise AccountError("Account balance too low")
+
+    def deposit(amount):
+        nonlocal balance
+        balance = balance + amount
+
+    def get_value():
+        return balance
+
+    public_methods = {'withdraw' : withdraw, 'deposit' : deposit, 'get_value' : get_value}
+    return public_methods
 
