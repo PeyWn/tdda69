@@ -149,14 +149,12 @@ def repeated_application(f, n):
 """
 def smooth(f):
     dx = 0.01
-    pass
+    return lambda x: (f(x-dx)+f(x)+f(x+dx))/3
+#print(smooth(lambda x:x*x)(4))
 
 
-"""
-Write a procedure n fold smooth that takes f and n less or equal 0 as inputs and,
-using your repeat function, returns the n-fold smoothed version of f.
-"""
 def n_fold_smooth(f, n):
-    pass
+    return rep(smooth, n)(f)
+print(n_fold_smooth(lambda x:x*x, 5)(4))
 
 
