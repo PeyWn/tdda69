@@ -207,21 +207,36 @@ Output:
 2.3
 """
 from account import AccountError
-
-def make_account(balance):
-    def withdraw(amount):
+def make_account(balance, r):
+    if r < 0:
+        raise AccountError("Interest cannot be negative")
+    last_transaction = 0
+    def withdraw(amount, t):
         nonlocal balance
         if balance >= amount:
-            balance = balance - amount
+            balance = balance - amount + interest(t)
         else:
             raise AccountError("Account balance too low")
 
-    def deposit(amount):
+    def deposit(amount, t):
         nonlocal balance
-        balance = balance + amount
+        balance = balance + amount + interest(t)
+        print(balance)
 
     def get_value():
         return balance
+
+    def interest(t):
+        nonlocal last_transaction
+        nonlocal balance
+        nonlocal r
+        if t < last_transaction:
+            raise AccountError("Invalid time")
+        else:
+            res = (t-last_transaction)*r*balance
+            last_transaction = t
+            return res
+
 
     public_methods = {'withdraw' : withdraw, 'deposit' : deposit, 'get_value' : get_value}
     return public_methods
