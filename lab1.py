@@ -135,23 +135,22 @@ def compose(f, g):
     return lambda x: f(g(x))
 #print(compose(lambda n: n+3, lambda m: m*m)(2))
 
+"""
+b) Def(f) = Val(f) 
+"""
 
 def repeated_application(f, n):
     return accumulate(compose, lambda x:x, lambda x:f, 1, lambda x:x+1, n)
 #print(repeated_application(lambda n:n**n, 2)(5))
-"""
-b) 
-c)
-"""
+
 
 """
 1.6
-
-Write a procedure smooth that takes f as input, and returns the smoothed
-version of f with dx=0.01.
 """
-def smooth(f, dx):
+def smooth(f):
+    dx = 0.01
     pass
+
 
 """
 Write a procedure n fold smooth that takes f and n less or equal 0 as inputs and,
