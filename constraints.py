@@ -112,9 +112,22 @@ class Multiplier:
     self.m2.forget(self)
     self.process()
 
-   
-    
+class squarer:
+  def __init__(self, v1_, v2_, name_ = "unnamed squarer"):
+    self.v1 = v1_
+    self.v2 = v2_
+    self.name = name_
+    v1_.connect(self)
+    v2_.connect(self)
+
+  def process(self):
+    v1,v2 = self.v1, self.v2
+    v2.set_value(v1.value ** 2, self)
+
+  def forget(self):
+    self.v1.forget(self)
+    self.v2.forget(self)
+    self.process()
 
 
 """ Test case"""
-
