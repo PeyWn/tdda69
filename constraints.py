@@ -122,7 +122,10 @@ class squarer:
 
   def process(self):
     v1,v2 = self.v1, self.v2
-    v2.set_value(v1.value ** 2, self)
+    if v1.value:
+      v2.set_value(v1.value ** 2, self)
+    elif v2.value:
+      v1.set_value(math.sqrt(v2.value), self)
 
   def forget(self):
     self.v1.forget(self)
