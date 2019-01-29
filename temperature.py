@@ -15,7 +15,7 @@ def temperature_converter(c,f):
   Constant(5, x)
   Constant(32, y)
   print("Connected ", c.name, " with ",  f.name)
-  
+
 c = Connector("Celsius")
 f = Connector("Farenheit")
 temperature_converter(c,f)
