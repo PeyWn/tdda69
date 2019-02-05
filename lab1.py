@@ -5,12 +5,12 @@ calls first, and then you take the return value of the recursive call and
 calculate the result. In this manner, you don't get the result of your
 calculation until you have returned from every recursive call.
 
-In tail recursion, you perform your calculations first, and then you execute 
-the recursive call, passing the results of your current step to the next 
-recursive step. This results in the last statement being in the form of 
-(return (recursive-function params)). 
+In tail recursion, you perform your calculations first, and then you execute
+the recursive call, passing the results of your current step to the next
+recursive step. This results in the last statement being in the form of
+(return (recursive-function params)).
 
-Basically, the return value of any given recursive step is the same as the 
+Basically, the return value of any given recursive step is the same as the
 return value of the next recursive call.
 """
 def sum_iter(term, lower, successor, upper):
@@ -80,7 +80,9 @@ def acc_prod(lower, upper):
 """
 c)
 Natural numbers
-The combiner can not have diffrent answers in order of execution
+Commutative
+The combiner can not have diffrent answers in order of execution.
+
 
 Example below:
 print (accumulate_iter(lambda x,y:x-y, 0, lambda x:x, 1, lambda x:x+1, 3), '\n')
@@ -130,14 +132,14 @@ def rep(f, n):
         return lambda x:x
 #print(rep(lambda x:x*x, 2)(5))
 
+"""
+b) Def(f) = Val(f)
+"""
 
 def compose(f, g):
     return lambda x: f(g(x))
 #print(compose(lambda n: n+3, lambda m: m*m)(2))
 
-"""
-b) Def(f) = Val(f) 
-"""
 
 def repeated_application(f, n):
     return accumulate(compose, lambda x:x, lambda x:f, 1, lambda x:x+1, n)
@@ -160,10 +162,9 @@ def n_fold_smooth(f, n):
 
 """
 2.1
-Applicative-order language all the arguments procedures are evaluated when 
-the procedure is applied. In contrast, normal-order languages delay evaluation 
+Applicative-order language all the arguments procedures are evaluated when
+the procedure is applied. In contrast, normal-order languages delay evaluation
 of procedure arguments until the actual argument values are needed.
-Read more.
 """
 
 """
@@ -184,16 +185,21 @@ a)
 print_mess = keep_val("Stored")
 value = "New and updated."
 print_mess()
+--- x=10, value='Stored' //There is no x in keep_val so it uses x=10 from global, value is set to 'Stored' in print_mess local scope
 g(5000)
+In g: 5000 //argument x is set to 5000 in local scope
+In f: 10 // uses x=10 form global scope
 x = 0
 g(5000)
+In g: 5000 //same as before
+In f: 0 //uses x=0 for global scope
 
 b)
-???
+see git folder
 
 c)
-Lexical scoping, (static scoping) --> Reach variabler declared in same block. 
-Dynamic scoping --> Reach variables outside block, e.g. f reaches g´s scope.
+Lexical scoping, (static scoping) --> Reach variabler declared in same block.
+Dynamic scoping --> Reach variables outside block, e.g. f reaches g:s scope.
 Output:
 --- x=10, value=New and Updated
 ('In g: ', 5000)
@@ -239,11 +245,10 @@ def make_account(balance, r):
     public_methods = {'withdraw' : withdraw, 'deposit' : deposit, 'get_value' : get_value}
     return public_methods
 """
-b) ??? 
+b) ???
 """
 
 
 """
 
 """
-

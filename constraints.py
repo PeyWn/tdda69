@@ -133,4 +133,12 @@ class squarer:
     self.process()
 
 
-""" Test case"""
+"""
+3.0.1
+a)
+See squarer above
+
+b)
+It's not possible for domains of negative number to be reverted through squarer
+
+"""

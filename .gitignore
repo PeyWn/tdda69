@@ -3,6 +3,9 @@ __pycache__/
 # Created by https://www.gitignore.io/api/vim,emacs,linux,macos,visualstudiocode
 # Edit at https://www.gitignore.io/?templates=vim,emacs,linux,macos,visualstudiocode
 
+### venv ###
+venv
+
 ### Emacs ###
 # -*- mode: gitignore; -*-
 *~
