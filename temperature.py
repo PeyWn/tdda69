@@ -22,5 +22,6 @@ temperature_converter(c,f)
 c.show_updates = True
 f.show_updates = True
 c.set_value(100, "user")
-f.set_value(123, "user")
 c.forget("user")
+f.set_value(123, "user")
+f.forget("user")
