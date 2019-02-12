@@ -1,0 +1,9 @@
+import std 1.0;
+
+function case(_name)
+{
+  define name = _name;
+  define check = function(v) { cond(!v, ___native_call___("py", "abort", name, ___calltrace___)); return(env) };
+  define check_equal = function(a, b) { cond(a != b, { std.print(a); std.print(b); ___native_call___("py", "abort", name, ___calltrace___)}); return(env) };
+  return(env);
+}
