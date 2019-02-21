@@ -4,7 +4,7 @@ import os
 class modules_manager:
   '''
   Handle importing of modules
-  '''  
+  '''
   def __init__(self):
     self.loaded_modules = dict()
     self.search_path = [os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "..", "modules"))]
@@ -27,7 +27,7 @@ class modules_manager:
     for path in self.search_path:
       mpath = os.path.join(path, *module)
       if(os.path.exists(mpath)):
-        
+
         for f in os.listdir(mpath):
           major_v, minor_v = f.split(".")
           if(int(major_v) == major_version and int(minor_v) >= minor_version and int(minor_v) < best_miver):
