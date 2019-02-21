@@ -94,13 +94,12 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_statements(self, statements):
-    statement = statements[0]
-    print("visit statments ",type(statement))
 
-    if type(statement) is klib.ast.named_block:
-        return self.visit_named_block(statement)
-    elif type(statement) is klib.ast.expression_statement:
-        return self.visit_expression_statement(statement)
+    if statements:
+        statement = statements[0]
+        print("visit statments ",type(statement))
+        print(statement.accept(self))
+
     else:
         raise Exception("substitution_evaluator: unimplemented")
     #if statement:
@@ -127,9 +126,8 @@ class substitution_evaluator(ast_visitor):
   def visit_expression_statement(self, node):
     print("expression_statement" , node.expression)
     expr = node.expression
-
-    if type(expr) is klib.ast.native_call:
-        return self.visit_native_call(expr)
+    if expr:
+        return expr.accept(self)
     else:
         raise Exception("substitution_evaluator: unimplemented")
 
