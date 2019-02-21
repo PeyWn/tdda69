@@ -69,6 +69,7 @@ class substitution_evaluator(ast_visitor):
     native_function = module.get(node.name)
     if module:
       native_function = module.get(node.name)
+      print(native_function)
     else:
       raise klib.exception.unknown_native_type(node.type)
     if not native_function:
@@ -78,8 +79,6 @@ class substitution_evaluator(ast_visitor):
       args.append(self.__get_value(arg.accept(self)))
     native_function(*args)
 
-  def __get_value(self, value):
-    return 'true'
 
   def lambda_declaration(self, node):
     return klib.environment.function(node.arguments, node.body, self.environment, **ke_utils.function_modifiers(node))
