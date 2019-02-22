@@ -69,7 +69,6 @@ class substitution_evaluator(ast_visitor):
     native_function = module.get(node.name)
     if module:
       native_function = module.get(node.name)
-      print(native_function)
     else:
       raise klib.exception.unknown_native_type(node.type)
     if not native_function:
@@ -78,6 +77,9 @@ class substitution_evaluator(ast_visitor):
     for arg in node.arguments:
       args.append(self.__get_value(arg.accept(self)))
     native_function(*args)
+
+  def __get_value(self, value):
+      return value
 
 
   def lambda_declaration(self, node):
@@ -90,14 +92,19 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_named_block(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    if (node.op == binary_operator.Assignment):
+        if (node.type == '___define___'):
+            for name in node.names:
+                return self.environment.define_value(name, node.body.accept(self))
+        elif(node.type == '___cell___'):
+            for name in node.names:
+                return self.environment.get(name)
 
   def visit_statements(self, statements):
 
     if statements:
         statement = statements[0]
-        print("visit statments ",type(statement))
-        print(statement.accept(self))
+        return statement.accept(self)
 
     else:
         raise Exception("substitution_evaluator: unimplemented")
@@ -105,7 +112,7 @@ class substitution_evaluator(ast_visitor):
     #    return visit_statements(statements[1:])
 
   def visit_binary_operation(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    return binary_operator_functions[node.op](node.left.accept(self), node.right.accept(self))
 
   def visit_unary_operation(self, node):
     raise Exception("substitution_evaluator: unimplemented")
@@ -123,7 +130,7 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_expression_statement(self, node):
-    print("expression_statement" , node.expression)
+    #print("expression_statement" , node.expression)
     expr = node.expression
     if expr:
         return expr.accept(self)
