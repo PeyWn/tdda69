@@ -93,30 +93,29 @@ class substitution_evaluator(ast_visitor):
 
   def visit_named_block(self, node):
     if (node.op == binary_operator.Assignment):
+        print('Block', node.names)
         if (node.type == '___define___'):
             for name in node.names:
+                print('Define', name)
                 return self.environment.define_value(name, node.body.accept(self))
         elif(node.type == '___cell___'):
             for name in node.names:
+                print('Cell', name)
                 if (self.environment.get(name).is_writable):
                     return self.environment.define_cell(name, node.body.accept(self))
 
   def visit_statements(self, statements):
-
     if statements:
-        statement = statements[0]
-        return statement.accept(self)
-
+        for statement in statements:
+            statement.accept(self)
     else:
         raise Exception("substitution_evaluator: unimplemented")
-    #if statement:
-    #    return visit_statements(statements[1:])
 
   def visit_binary_operation(self, node):
     return binary_operator_functions[node.op](node.left.accept(self), node.right.accept(self))
 
   def visit_unary_operation(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    return unary_operator_functions[node.op](node.right.accept(self))
 
   def visit_clear_expression(self, node):
     raise Exception("substitution_evaluator: unimplemented")
