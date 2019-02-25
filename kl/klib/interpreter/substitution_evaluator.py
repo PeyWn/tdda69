@@ -98,7 +98,8 @@ class substitution_evaluator(ast_visitor):
                 return self.environment.define_value(name, node.body.accept(self))
         elif(node.type == '___cell___'):
             for name in node.names:
-                return self.environment.get(name)
+                if (self.environment.get(name).is_writable):
+                    return self.environment.define_cell(name, node.body.accept(self))
 
   def visit_statements(self, statements):
 
@@ -141,6 +142,7 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_group_expression(self, node):
+    #print(node)
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_call_trace_expression(self, node):
