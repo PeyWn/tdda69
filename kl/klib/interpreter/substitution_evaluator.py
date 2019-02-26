@@ -115,9 +115,8 @@ class substitution_evaluator(ast_visitor):
     if isinstance(right, klib.environment.reference):
         right = self.environment.get(right.name).get_value()
 
-    if node.op == binary_operator.Assignment:
-        left.is_writable
-        print('Hej')
+    if node.op == binary_operator.Assignment and self.environment.get(node.left.accept(self)).is_writable:
+        return self.environment.get(node.left.accept(self)).set_value(right)
     else:
         return binary_operator_functions[node.op](left, right)
 
