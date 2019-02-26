@@ -8,6 +8,7 @@ import klib.vm
 import klib.parser
 import klib.ast
 import klib.environment
+import klib.environment.reference
 import klib.environment.utils as ke_utils
 
 from .kl_exception import kl_exception
@@ -102,14 +103,23 @@ class substitution_evaluator(ast_visitor):
                     return self.environment.define_cell(name, node.body.accept(self))
 
   def visit_statements(self, statements):
-    #TODO Reqursive visit statments
-    if not statements[1:]:
-        return statements[0].accept(self)
-    else:
-        visit_statements[statement[1:]]
+    for statement in statements:
+        statement.accept(self)
 
   def visit_binary_operation(self, node):
-    return binary_operator_functions[node.op](node.left.accept(self), node.right.accept(self))
+    right = node.right.accept(self)
+    left = node.left.accept(self)
+
+    if isinstance(left, klib.environment.reference):
+        left = self.environment.get(left.name).get_value()
+    if isinstance(right, klib.environment.reference):
+        right = self.environment.get(right.name).get_value()
+
+    if node.op == binary_operator.Assignment:
+        left.is_writable
+        print('Hej')
+    else:
+        return binary_operator_functions[node.op](left, right)
 
   def visit_unary_operation(self, node):
     return unary_operator_functions[node.op](node.right.accept(self))
@@ -130,7 +140,7 @@ class substitution_evaluator(ast_visitor):
     #print("expression_statement" , node.expression)
     expr = node.expression
     if expr:
-        return expr.accept(self)
+        expr.accept(self)
     else:
         raise Exception("substitution_evaluator: unimplemented")
 
