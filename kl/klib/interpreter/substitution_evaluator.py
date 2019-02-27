@@ -93,14 +93,15 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_named_block(self, node):
-    if (node.op == binary_operator.Assignment):
-        if (node.type == '___define___'):
-            for name in node.names:
-                return self.environment.define_value(name, node.body.accept(self))
-        elif(node.type == '___cell___'):
-            for name in node.names:
-                if (self.environment.get(name).is_writable):
-                    return self.environment.define_cell(name, node.body.accept(self))
+    if (node.type == '___define___'):
+        for name in node.names:
+            return self.environment.define_value(name, node.body.accept(self))
+    elif(node.type == '___cell___'):
+        for name in node.names:
+          if node.body is None:
+            self.environment.define_cell(name)
+          else:
+            self.environment.define_cell(name, node.body.accept(self))
 
   def visit_statements(self, statements):
     for statement in statements:
@@ -110,24 +111,28 @@ class substitution_evaluator(ast_visitor):
     right = node.right.accept(self)
     left = node.left.accept(self)
 
-    if isinstance(left, klib.environment.reference):
-        left = self.environment.get(left.name).get_value()
     if isinstance(right, klib.environment.reference):
         right = self.environment.get(right.name).get_value()
 
-    if node.op == binary_operator.Assignment and self.environment.get(node.left.accept(self)).is_writable:
-        return self.environment.get(node.left.accept(self)).set_value(right)
-    else:
-        return binary_operator_functions[node.op](left, right)
+    if isinstance(left, klib.environment.reference):
+      if node.op == binary_operator.Assignment:
+        if self.environment.get(left.name).is_writable():
+          return self.environment.get(left.name).set_value(right)
+        return #TODO What to return
+      left = self.environment.get(left.name).get_value()
+
+    return binary_operator_functions[node.op](left, right)
 
   def visit_unary_operation(self, node):
     return unary_operator_functions[node.op](node.right.accept(self))
 
   def visit_clear_expression(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    for value in node.values:
+      value.accept(self)
 
   def visit_cond_expression(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    for arg in node.arguments:
+      arg.accept(self)
 
   def visit_catch_expression(self, node):
     raise Exception("substitution_evaluator: unimplemented")
@@ -137,18 +142,16 @@ class substitution_evaluator(ast_visitor):
 
   def visit_expression_statement(self, node):
     #print("expression_statement" , node.expression)
-    expr = node.expression
-    if expr:
-        expr.accept(self)
-    else:
-        raise Exception("substitution_evaluator: unimplemented")
+    node.expression.accept(self)
 
   def visit_block_expression(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    #TODO Make new environment also do magic
+    for statement in node.statements:
+      statement.accept(self)
 
   def visit_group_expression(self, node):
-    #print(node)
-    raise Exception("substitution_evaluator: unimplemented")
+    for statement in node.statements:
+      statement.accept(self)
 
   def visit_call_trace_expression(self, node):
     return [node.metadata]
