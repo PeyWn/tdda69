@@ -118,7 +118,8 @@ class substitution_evaluator(ast_visitor):
       if node.op == binary_operator.Assignment:
         if self.environment.get(left.name).is_writable():
           return self.environment.get(left.name).set_value(right)
-        return #TODO What to return
+        else:
+          raise klib.exception("Not a writable assignment")
       left = self.environment.get(left.name).get_value()
 
     return binary_operator_functions[node.op](left, right)
