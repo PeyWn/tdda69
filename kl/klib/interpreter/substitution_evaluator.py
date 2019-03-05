@@ -94,7 +94,6 @@ class substitution_evaluator(ast_visitor):
 
   def visit_named_block(self, node):
     # TODO implement diffrent cases for node.body (if block_expression or value obj for example)
-    print(node.names, node.body)
     if (node.type == '___define___'):
         for name in node.names:
             return self.environment.define_value(name, node.body.accept(self))
@@ -102,6 +101,8 @@ class substitution_evaluator(ast_visitor):
         for name in node.names:
           if node.body is None:
             self.environment.define_cell(name)
+          elif isinstance(node.body, klib.ast.block_expression):
+            self.environment.define_cell(name, node.body.accept(self))
           else:
             self.environment.define_cell(name, node.body.accept(self))
 
@@ -113,8 +114,31 @@ class substitution_evaluator(ast_visitor):
     right = node.right.accept(self)
     left = node.left.accept(self)
 
+    if node.op in binary_operator_functions:
+      if isinstance(right, klib.environment.reference):
+        right = self.environment.get(right.name).get_value()
+      if isinstance(left, klib.environment.reference):
+        left = self.environment.get(left.name).get_value()
+      return binary_operator_functions[node.op](left, right)
+
+    if node.op == binary_operator.Assignment:
+    # eval right then set left if left writable
+      if isinstance(right, klib.environment.reference):
+        right = self.environment.get(right.name).get_value()
+
+      if self.environment.get(left.name).is_writable():
+        return self.environment.get(left.name).set_value(right)
+      else:
+        raise klib.exception("Not a writable assignment")
+
+    elif node.op == binary_operator.Member:
+    # eval left then access thorugh environment
+      if isinstance(left, klib.environment.reference):
+        left = self.environment.get(left.name).get_value()
+      return left.get(right.name).get_value()
+
+    '''
     if isinstance(right, klib.environment.reference):
-        print("Hej 1", left.environment, right, node.op)
         right = self.environment.get(right.name).get_value()
 
     if isinstance(left, klib.environment.reference):
@@ -126,6 +150,7 @@ class substitution_evaluator(ast_visitor):
       left = self.environment.get(left.name).get_value()
 
     return binary_operator_functions[node.op](left, right)
+    '''
 
   def visit_unary_operation(self, node):
     return unary_operator_functions[node.op](node.right.accept(self))
@@ -146,12 +171,10 @@ class substitution_evaluator(ast_visitor):
 
   def visit_expression_statement(self, node):
     #print("expression_statement" , node.expression)
-    print(node.expression)
     node.expression.accept(self)
 
   def visit_block_expression(self, node):
     #TODO Make new environment also do magic
-    print("Block Expression", node)
     self.environment = klib.environment.environment(self.environment)
     for statement in node.statements:
       statement.accept(self)
