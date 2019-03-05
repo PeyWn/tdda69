@@ -93,6 +93,8 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_named_block(self, node):
+    # TODO implement diffrent cases for node.body (if block_expression or value obj for example)
+    print(node.names, node.body)
     if (node.type == '___define___'):
         for name in node.names:
             return self.environment.define_value(name, node.body.accept(self))
@@ -112,6 +114,7 @@ class substitution_evaluator(ast_visitor):
     left = node.left.accept(self)
 
     if isinstance(right, klib.environment.reference):
+        print("Hej 1", left.environment, right, node.op)
         right = self.environment.get(right.name).get_value()
 
     if isinstance(left, klib.environment.reference):
@@ -143,12 +146,18 @@ class substitution_evaluator(ast_visitor):
 
   def visit_expression_statement(self, node):
     #print("expression_statement" , node.expression)
+    print(node.expression)
     node.expression.accept(self)
 
   def visit_block_expression(self, node):
     #TODO Make new environment also do magic
+    print("Block Expression", node)
+    self.environment = klib.environment.environment(self.environment)
     for statement in node.statements:
       statement.accept(self)
+    ret = self.environment
+    self.environment = self.environment.parent
+    return ret
 
   def visit_group_expression(self, node):
     for statement in node.statements:
