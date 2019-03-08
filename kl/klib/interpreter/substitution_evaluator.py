@@ -73,7 +73,7 @@ class substitution_evaluator(ast_visitor):
     else:
       raise klib.exception.unknown_native_type(node.type)
     if not native_function:
-      raise klib.exception .unknown_native_function(node.type, node.name)
+      raise klib.exception.unknown_native_function(node.type, node.name)
     args = []
     for arg in node.arguments:
       args.append(self.__get_value(arg.accept(self)))
@@ -93,18 +93,25 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_named_block(self, node):
-    # TODO implement diffrent cases for node.body (if block_expression or value obj for example)
+    name = node.names[0]
+    sub_env = False
+    if len(node.names) > 1:
+      sub_env = self.environment.get(name).get_value()
+      if isinstance(sub_env, klib.environment.environment):
+        self.environment = sub_env
+      name = node.names[1]
+
     if (node.type == '___define___'):
-        for name in node.names:
-            return self.environment.define_value(name, node.body.accept(self))
+       self.environment.define_value(name, node.body.accept(self))
     elif(node.type == '___cell___'):
-        for name in node.names:
-          if node.body is None:
-            self.environment.define_cell(name)
-          elif isinstance(node.body, klib.ast.block_expression):
-            self.environment.define_cell(name, node.body.accept(self))
-          else:
-            self.environment.define_cell(name, node.body.accept(self))
+        if node.body is None:
+          self.environment.define_cell(name)
+        else:
+          self.environment.define_cell(name, node.body.accept(self))
+
+    if sub_env:
+      self.environment = sub_env.parent
+
 
   def visit_statements(self, statements):
     for statement in statements:
@@ -137,20 +144,6 @@ class substitution_evaluator(ast_visitor):
         left = self.environment.get(left.name).get_value()
       return left.get(right.name).get_value()
 
-    '''
-    if isinstance(right, klib.environment.reference):
-        right = self.environment.get(right.name).get_value()
-
-    if isinstance(left, klib.environment.reference):
-      if node.op == binary_operator.Assignment:
-        if self.environment.get(left.name).is_writable():
-          return self.environment.get(left.name).set_value(right)
-        else:
-          raise klib.exception("Not a writable assignment")
-      left = self.environment.get(left.name).get_value()
-
-    return binary_operator_functions[node.op](left, right)
-    '''
 
   def visit_unary_operation(self, node):
     return unary_operator_functions[node.op](node.right.accept(self))
