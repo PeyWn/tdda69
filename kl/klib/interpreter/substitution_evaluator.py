@@ -153,8 +153,17 @@ class substitution_evaluator(ast_visitor):
       value.accept(self)
 
   def visit_cond_expression(self, node):
-    for arg in node.arguments:
-      arg.accept(self)
+    doelse = True
+    arg = node.arguments
+    el = arg.pop()
+    for a in range(0, len(arg), 2):
+      if arg[a].accept(self):
+        arg[a+1].accept(self)
+        doelse = False
+        break
+
+    if doelse:
+      el.accept(self)
 
   def visit_catch_expression(self, node):
     raise Exception("substitution_evaluator: unimplemented")
