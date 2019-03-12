@@ -22,3 +22,9 @@ class unknown_native_function(exception):
 class catch_exception(exception):
   def __init__(self, message, *args, metadata = None):
     super().__init__("catch exception")
+    self.message = message
+
+class return_exception(exception):
+  def __init__(self, message, *args, metadata = None):
+    super().__init__("return exception")
+    self.message = message

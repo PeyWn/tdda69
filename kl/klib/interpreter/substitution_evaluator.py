@@ -3,7 +3,7 @@ import operator
 from klib.ast import visitor as ast_visitor
 from klib.parser.operators import binary_operator
 from klib.parser import binary_operator, unary_operator
-from klib.exception import catch_exception
+from klib.exception import catch_exception, return_exception
 import klib.vm
 import klib.parser
 import klib.ast
@@ -90,8 +90,7 @@ class substitution_evaluator(ast_visitor):
     raise Exception("substitution_evaluator: unimplemented")
 
   def visit_return_expression(self, node): 
-    print('Hej by ret', node.return_value.accept(self))
-    #TODO raise return_execption with return_value
+    raise return_exception(node.return_value.accept(self))
 
   def visit_named_block(self, node):
     name = node.names[0]
@@ -172,21 +171,20 @@ class substitution_evaluator(ast_visitor):
     except catch_exception as e:
       if not node.catch_cond is None:
         cond = node.catch_cond.accept(self)
+        func_return = False
         if isinstance(cond, bool) and cond:
           node.catch_block.accept(self)
-        elif True: # TODO if cond is func obj node.catch_cond.accept(self).prepare_call(e):
+        elif isinstance(cond, klib.environment.function): 
           env = self.environment
-          self.environment = node.catch_cond.accept(self).prepare_call(e)[0]
+          self.environment = node.catch_cond.accept(self).prepare_call(e.message)[0]
           try:
-            print(node.catch_cond.accept(self).body.accept(self))
-          except return_exception as e:
-            fun_return = e
+            node.catch_cond.accept(self).body.accept(self)
+          except return_exception as re:
+            func_return = re.message
           self.environment = env
 
           if func_return:
-           node.catch_block.accept(self)
-          else:
-            raise catch_exception(e)
+            node.catch_block.accept(self)
         else:
           raise catch_exception(e)
       else:
@@ -196,7 +194,6 @@ class substitution_evaluator(ast_visitor):
     raise catch_exception(node.expression.accept(self))
 
   def visit_expression_statement(self, node):
-    #print("expression_statement" , node.expression)
     node.expression.accept(self)
 
   def visit_block_expression(self, node):
