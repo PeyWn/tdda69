@@ -18,3 +18,7 @@ class unknown_native_type(exception):
 class unknown_native_function(exception):
   def __init__(self, type, name):
     super().__init__("Unknown native function {} in {}", name, type)
+
+class catch_exception(exception):
+  def __init__(self, type, name):
+    super().__init__("Catch exception {}", type)
