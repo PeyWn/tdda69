@@ -166,17 +166,41 @@ class substitution_evaluator(ast_visitor):
       el.accept(self)
 
   def visit_catch_expression(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    catch_block = False
+    try:
+      if isinstance(node.block, klib.ast.catch_expression):
+        catch_block = True
+        node.block.block.accept(self)
+      else:
+        node.block.accept(self)
+    except klib.exception as e:
+      if catch_block:
+        if not node.block.catch_cond is None:
+          cond = node.block.catch_cond.accept(self)
+          if isinstance(cond, bool) and cond:
+            node.block.catch_block.accept(self)
+          elif node.block.catch_cond.accept(self).prepare_call(e):
+            node.block.catch_block.accept(self)
+        else:
+          node.block.catch_block.accept(self)
+
+      if not node.catch_cond is None:
+        cond = node.catch_cond.accept(self)
+        if isinstance(cond, bool) and cond:
+          node.catch_block.accept(self)
+        elif node.catch_cond.accept(self).prepare_call(e):
+          node.catch_block.accept(self)
+      else:
+        node.catch_block.accept(self)
 
   def visit_raise_expression(self, node):
-    raise Exception("substitution_evaluator: unimplemented")
+    raise klib.exception(node.expression.accept(self))
 
   def visit_expression_statement(self, node):
     #print("expression_statement" , node.expression)
     node.expression.accept(self)
 
   def visit_block_expression(self, node):
-    #TODO Make new environment also do magic
     self.environment = klib.environment.environment(self.environment)
     for statement in node.statements:
       statement.accept(self)

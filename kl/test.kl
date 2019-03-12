@@ -1,0 +1,15 @@
+#!kl --test run_success
+
+cell a;
+cell b;
+cell c;
+cell d;
+
+catch({ a=0; raise("exception"); a=2}, a=1);
+catch({ b=0; raise("exception"); b=2}, function(except) { return(except == "exception") }, b=1);
+catch(catch({ c=0; raise("exception"); c=2}, function(except) { return(except != "exception") }, c=1), true, {});
+catch({ d=0; raise("exception"); d=2}, function(except) { cond(except == "exception", d = 1) });
+
+___native_call___("py", "assert_", a == 1, ___calltrace___);
+___native_call___("py", "assert_", b == 1, ___calltrace___);
+___native_call___("py", "assert_", c == 1, ___calltrace___);
