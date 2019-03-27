@@ -36,6 +36,7 @@ class executor:
       executor.opmaps[opcodes.SWAP] = executor.execute_swap
       executor.opmaps[opcodes.PUSH_ENV] = executor.execute_push_env
       executor.opmaps[opcodes.NEW_ENV] = executor.execute_new_env
+      executor.opmaps[opcodes.DROP_ENV] = executor.execute_drop_env
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
@@ -97,3 +98,5 @@ class executor:
   def execute_new_env(self):
     self.current_context.environment = klib.environment.environment(self.current_context.environment)
 
+  def execute_drop_env(self):
+    self.current_context.environment = self.current_context.environment.parent
