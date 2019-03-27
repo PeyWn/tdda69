@@ -35,7 +35,7 @@ class executor:
       executor.opmaps[opcodes.DUP] = executor.execute_dup
       executor.opmaps[opcodes.SWAP] = executor.execute_swap
 
-  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, verbose = False):
+  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
     self.caller_metadata = caller_metadata
 
@@ -66,6 +66,9 @@ class executor:
 
     if(len(self.current_context.stack) > 0):
       return self.__pop_value()
+
+    if return_stack:
+      return self.current_context.stack
 
   def __pop_value(self):
     ret = []
