@@ -34,6 +34,7 @@ class executor:
       executor.opmaps[opcodes.POP] = executor.execute_pop
       executor.opmaps[opcodes.DUP] = executor.execute_dup
       executor.opmaps[opcodes.SWAP] = executor.execute_swap
+      executor.opmaps[opcodes.PUSH_ENV] = executor.execute_push_env
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
@@ -88,3 +89,7 @@ class executor:
   def execute_pop(self, count = 1):
     for i in range(0, count):
       self.current_context.stack.pop()
+
+  def execute_push_env(self):
+    self.current_context.stack.push(self.current_context.environment)
+
