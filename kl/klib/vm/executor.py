@@ -37,6 +37,8 @@ class executor:
       executor.opmaps[opcodes.PUSH_ENV] = executor.execute_push_env
       executor.opmaps[opcodes.NEW_ENV] = executor.execute_new_env
       executor.opmaps[opcodes.DROP_ENV] = executor.execute_drop_env
+      executor.opmaps[opcodes.MAKE_REF] = executor.execute_make_ref
+      executor.opmaps[opcodes.STORE] = executor.execute_store
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
@@ -100,3 +102,10 @@ class executor:
 
   def execute_drop_env(self):
     self.current_context.environment = self.current_context.environment.parent
+
+  def execute_make_ref(self, name = 'name'):
+    klib.environment.reference(self.current_context.environment, name)
+
+  def execute_store(self, name = 'name'):
+    klib.environment.reference(self.current_context.environment, name)
+    self.current_context.stack.pop()
