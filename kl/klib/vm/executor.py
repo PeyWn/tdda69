@@ -39,8 +39,11 @@ class executor:
       executor.opmaps[opcodes.DROP_ENV] = executor.execute_drop_env
       executor.opmaps[opcodes.MAKE_REF] = executor.execute_make_ref
       executor.opmaps[opcodes.STORE] = executor.execute_store
+      executor.opmaps[opcodes.DCL_CELL] = executor.dcl_cell
+      executor.opmaps[opcodes.DEF_VALUE] = executor.def_value
+      executor.opmaps[opcodes.CLEAR] = executor.clear
 
-  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
+  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = False):
     self.current_context = executor_context(program, environment)
     self.caller_metadata = caller_metadata
 
@@ -74,6 +77,7 @@ class executor:
 
     if return_stack:
       return self.current_context.stack
+    
 
   def __pop_value(self):
     ret = []
@@ -103,9 +107,55 @@ class executor:
   def execute_drop_env(self):
     self.current_context.environment = self.current_context.environment.parent
 
-  def execute_make_ref(self, name = 'name'):
-    klib.environment.reference(self.current_context.environment, name)
+  def execute_make_ref(self, name = None):
+    if name is None:
+      name = self.current_context.stack.pop()
+    env = self.current_context.stack.pop()
+    self.current_context.stack.push(klib.environment.reference(env, name))
 
-  def execute_store(self, name = 'name'):
-    klib.environment.reference(self.current_context.environment, name)
-    self.current_context.stack.pop()
+  def execute_store(self, name = None):
+    elem = self.current_context.stack.pop()
+
+    if isinstance(elem, klib.environment.reference):
+      elem = elem.environment.get(elem.name)
+      while isinstance(elem, klib.environment.reference):
+        elem = elem.environment.get(elem.name)
+      value = elem.get_value()
+    else:
+      value = elem
+
+    if name is None:
+      ref = self.current_context.stack.pop()
+      name = ref.name
+      env = ref.environment
+    else:
+      env = self.current_context.stack.pop()
+
+    env.get(name).set_value(value)
+    self.current_context.stack.push(value)
+
+  def dcl_cell(self, name = None):
+    env = self.current_context.stack.pop()
+    env.define_cell(name)
+
+  def def_value(self, name = None):
+    value = self.current_context.stack.pop()
+    env = self.current_context.stack.pop()
+    env.define_value(name, value)
+
+  def clear(self, name = None):
+    elem = self.current_context.stack.pop()
+    if isinstance(elem, klib.environment.reference):
+      name = elem.name
+      env = elem.environment
+    else:
+      env = elem
+
+    while env.parent is not None:
+      env = env.parent
+
+    env.clear(name)
+    self.current_context.stack.push(None)
+
+
+
