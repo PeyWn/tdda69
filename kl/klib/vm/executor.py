@@ -20,6 +20,10 @@ class exception_context:
   def __init__(self, index):
     self.index = index
 
+class call_trace(klib.parser.metadata):
+  def __init__(self, line, column, filename, blockname, parent, trace):
+    self.trace = trace
+
 class executor:
 
   opmaps = {}
@@ -42,10 +46,12 @@ class executor:
       executor.opmaps[opcodes.DCL_CELL] = executor.dcl_cell
       executor.opmaps[opcodes.DEF_VALUE] = executor.def_value
       executor.opmaps[opcodes.CLEAR] = executor.clear
+      executor.opmaps[opcodes.PUSH_CALL_TRACE] = executor.push_call_trace
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = False):
     self.current_context = executor_context(program, environment)
     self.caller_metadata = caller_metadata
+    self.ct = call_trace()
 
     if verbose:
       program.print()
@@ -64,6 +70,8 @@ class executor:
         self.current_context.stack.print()
 
       f = executor.opmaps[inst.opcode]
+
+      self.ct.trace.append(f)
 
       r = f(self, **inst.params)
 
@@ -156,6 +164,9 @@ class executor:
 
     env.clear(name)
     self.current_context.stack.push(None)
+
+  def push_call_trace(self):
+    self.current_context.stack.push(self.ct)
 
 
 
