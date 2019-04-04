@@ -20,8 +20,8 @@ class exception_context:
   def __init__(self, index):
     self.index = index
 
-class call_trace(klib.parser.metadata):
-  def __init__(self, line, column, filename, blockname, parent, trace):
+class call_trace():
+  def __init__(self, trace):
     self.trace = trace
 
 class executor:
@@ -47,11 +47,14 @@ class executor:
       executor.opmaps[opcodes.DEF_VALUE] = executor.def_value
       executor.opmaps[opcodes.CLEAR] = executor.clear
       executor.opmaps[opcodes.PUSH_CALL_TRACE] = executor.push_call_trace
+      executor.opmaps[opcodes.JMP] = executor.jmp
+      executor.opmaps[opcodes.IFJMP] = executor.ifjmp
+      executor.opmaps[opcodes.RET] = executor.ret
 
-  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = False):
+  def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
     self.caller_metadata = caller_metadata
-    self.ct = call_trace()
+    self.ct = call_trace([])
 
     if verbose:
       program.print()
@@ -71,9 +74,12 @@ class executor:
 
       f = executor.opmaps[inst.opcode]
 
-      self.ct.trace.append(f)
+      self.ct.trace.append(klib.parser.metadata(self.current_context.current_index, 0, None, None, None))
 
       r = f(self, **inst.params)
+
+      if r:
+        return r
 
       self.current_context.current_index += 1
 
@@ -166,7 +172,25 @@ class executor:
     self.current_context.stack.push(None)
 
   def push_call_trace(self):
-    self.current_context.stack.push(self.ct)
+    for i in range(0, len(self.ct.trace)):
+      self.current_context.stack.push([self.ct.trace.pop()])
 
+  def jmp(self, index = None):
+    if index is not None:
+      self.current_context.current_index = index - 1 
 
+  def ifjmp(self, index = None):
+    if self.current_context.stack.pop():
+      self.jmp(index)
 
+  def ret(self):
+    elem = self.current_context.stack.pop()
+
+    if isinstance(elem, klib.environment.reference):
+      elem = elem.environment.get(elem.name)
+      while isinstance(elem, klib.environment.reference):
+        elem = elem.environment.get(elem.name)
+      value = elem.get_value()
+    else:
+      value = elem
+    return value
