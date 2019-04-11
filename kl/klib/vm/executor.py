@@ -225,4 +225,5 @@ class executor:
   def throw(self):
     if self.current_context.exceptions_stack.__len__() > 0:
       self.current_context.current_index = self.current_context.exceptions_stack.pop()
-      raise klib.interpreter.kl_exception(0)
+    else:
+      raise klib.interpreter.kl_exception(self.current_context.current_index)
