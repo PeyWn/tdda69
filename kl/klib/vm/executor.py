@@ -50,6 +50,12 @@ class executor:
       executor.opmaps[opcodes.JMP] = executor.jmp
       executor.opmaps[opcodes.IFJMP] = executor.ifjmp
       executor.opmaps[opcodes.RET] = executor.ret
+      executor.opmaps[opcodes.NATIVE_CALL] = executor.native_call
+      executor.opmaps[opcodes.CALL] = executor.call
+      executor.opmaps[opcodes.TRY_PUSH] = executor.try_push
+      executor.opmaps[opcodes.TRY_POP] = executor.try_pop
+      executor.opmaps[opcodes.THROW] = executor.throw
+
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
     self.current_context = executor_context(program, environment)
@@ -74,7 +80,7 @@ class executor:
 
       f = executor.opmaps[inst.opcode]
 
-      self.ct.trace.append(klib.parser.metadata(self.current_context.current_index, 0, None, None, None))
+      self.ct.trace.append(self.current_context)
 
       r = f(self, **inst.params)
 
@@ -172,8 +178,7 @@ class executor:
     self.current_context.stack.push(None)
 
   def push_call_trace(self):
-    for i in range(0, len(self.ct.trace)):
-      self.current_context.stack.push([self.ct.trace.pop()])
+    self.current_context.stack.push([klib.parser.metadata(self.ct.trace.pop().current_index, 0, None, None, None)])
 
   def jmp(self, index = None):
     if index is not None:
@@ -188,9 +193,36 @@ class executor:
 
     if isinstance(elem, klib.environment.reference):
       elem = elem.environment.get(elem.name)
-      while isinstance(elem, klib.environment.reference):
+      while isinstance(elem, klib.environment.reference): 
         elem = elem.environment.get(elem.name)
       value = elem.get_value()
     else:
       value = elem
     return value
+
+  def native_call(self, native_function = None, count = 0):
+    args = []
+    for i in range(0, count):
+      args.append(self.current_context.stack.pop())
+    self.current_context.stack.push(native_function(args)[0])
+
+  def call(self, count = 0):
+    args = []
+    funcy = self.current_context.stack.pop()
+    print(funcy)
+    for i in range(0, count):
+      args.append(self.current_context.stack.pop())
+    new_env, new_prog = funcy.prepare_call(args)
+    ret = self.execute(new_prog, new_env, return_stack = True)
+    self.current_context.stack.push(ret[0])
+
+  def try_push(self, index = 0):
+    self.current_context.exceptions_stack.push(index)
+
+  def try_pop(self):
+    self.current_context.exceptions_stack.pop()
+
+  def throw(self):
+    if self.current_context.exceptions_stack.__len__() > 0:
+      self.current_context.current_index = self.current_context.exceptions_stack.pop()
+      raise klib.interpreter.kl_exception(0)
