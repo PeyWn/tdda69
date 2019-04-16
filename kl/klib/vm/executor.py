@@ -55,6 +55,26 @@ class executor:
       executor.opmaps[opcodes.TRY_PUSH] = executor.try_push
       executor.opmaps[opcodes.TRY_POP] = executor.try_pop
       executor.opmaps[opcodes.THROW] = executor.throw
+      executor.opmaps[opcodes.MAKE_FUNC] = executor.make_func
+      executor.opmaps[opcodes.ADD] = executor.ADD
+      executor.opmaps[opcodes.SUB] = executor.SUB
+      executor.opmaps[opcodes.MUL] = executor.MUL
+      executor.opmaps[opcodes.DIV] = executor.DIV
+      executor.opmaps[opcodes.MOD] = executor.MOD
+      executor.opmaps[opcodes.LEFT_SHIFT] = executor.LEFT_SHIFT
+      executor.opmaps[opcodes.RIGHT_SHIFT] = executor.RIGHT_SHIFT
+      executor.opmaps[opcodes.UNSIGNED_RIGHT_SHIFT] = executor.UNSIGNED_RIGHT_SHIFT
+      executor.opmaps[opcodes.GREATER] = executor.GREATER
+      executor.opmaps[opcodes.GREATER_EQUAL] = executor.GREATER_EQUAL
+      executor.opmaps[opcodes.LESS] = executor.LESS
+      executor.opmaps[opcodes.LESS_EQUAL] = executor.LESS_EQUAL
+      executor.opmaps[opcodes.EQUAL] = executor.EQUAL
+      executor.opmaps[opcodes.DIFFERENT] = executor.DIFFERENT
+      executor.opmaps[opcodes.AND] = executor.AND
+      executor.opmaps[opcodes.OR] = executor.OR
+      executor.opmaps[opcodes.NEG] = executor.NEG
+      executor.opmaps[opcodes.TILDE] = executor.TILDE
+      executor.opmaps[opcodes.NOT] = executor.NOT
 
 
   def execute(self, program, environment = klib.environment.environment(), caller_metadata = None, return_stack = False ,verbose = True):
@@ -97,7 +117,7 @@ class executor:
 
     if return_stack:
       return self.current_context.stack
-    
+
 
   def __pop_value(self):
     ret = []
@@ -182,7 +202,7 @@ class executor:
 
   def jmp(self, index = None):
     if index is not None:
-      self.current_context.current_index = index - 1 
+      self.current_context.current_index = index - 1
 
   def ifjmp(self, index = None):
     if self.current_context.stack.pop():
@@ -193,7 +213,7 @@ class executor:
 
     if isinstance(elem, klib.environment.reference):
       elem = elem.environment.get(elem.name)
-      while isinstance(elem, klib.environment.reference): 
+      while isinstance(elem, klib.environment.reference):
         elem = elem.environment.get(elem.name)
       value = elem.get_value()
     else:
@@ -227,3 +247,99 @@ class executor:
       self.current_context.current_index = self.current_context.exceptions_stack.pop()
     else:
       raise klib.interpreter.kl_exception(self.current_context.current_index)
+
+  def make_func(self, body = None, argument_names = None, modifiers = None):
+    func = klib.environment.function(argument_names, body, self.current_context.environment)
+    self.current_context.stack.push(func)
+
+  def ADD(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l + r)
+
+  def SUB(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l - r)
+
+  def MUL(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l * r)
+
+  def DIV(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l / r)
+
+  def MOD(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l % r)
+
+  def LEFT_SHIFT(self):
+    r = int(self.current_context.stack.pop())
+    l = int(self.current_context.stack.pop())
+    self.current_context.stack.push(l << r)
+
+  def RIGHT_SHIFT(self):
+    r = int(self.current_context.stack.pop())
+    l = int(self.current_context.stack.pop())
+    self.current_context.stack.push(l >> r)
+
+  def UNSIGNED_RIGHT_SHIFT(self):
+    r = int(self.current_context.stack.pop())
+    l = int(self.current_context.stack.pop())
+    self.current_context.stack.push(l + 0x100000000 >> r)
+
+  def GREATER(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l > r)
+
+  def GREATER_EQUAL(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l >= r)
+
+  def LESS(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l < r)
+
+  def LESS_EQUAL(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l <= r)
+
+  def EQUAL(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l == r)
+
+  def DIFFERENT(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(not(l == r))
+
+  def AND(self):
+    r = self.current_context.stack.pop()
+    l = self.current_context.stack.pop()
+    self.current_context.stack.push(l and r)
+
+  def OR(self):
+    r = int(self.current_context.stack.pop())
+    l = int(self.current_context.stack.pop())
+    self.current_context.stack.push(l or r)
+
+  def NEG(self):
+    elem = self.current_context.stack.pop()
+    self.current_context.stack.push(-elem)
+
+  def TILDE(self):
+    elem = int(self.current_context.stack.pop())
+    self.current_context.stack.push(~elem)
+
+  def NOT(self):
+    elem = self.current_context.stack.pop()
+    self.current_context.stack.push( not elem)
