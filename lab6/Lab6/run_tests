@@ -1,0 +1,24 @@
+#!/bin/bash
+
+TEST_NAME=$2
+GC_DIR="`pwd`/$1"
+
+DIR=$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+
+if [ -z "$TEST_NAME" ]
+then
+    TEST_NAME="all"
+fi
+
+TESTS=( "create_table" "insert" "delete" "update" "select_all" "select_expression" "select_where" "select_aggregation" "select_join" )
+
+for TEST in "${TESTS[@]}"
+do
+    if [ $TEST_NAME = "all" -o $TEST_NAME = $TEST ]
+    then
+        PYTHONPATH="$GC_DIR:$PYTHONPATH" "$DIR"/Tests/"$TEST".py
+        # unittest.main will by default call sys.exit() with a flag
+        # indicating that the test was successfull or not
+        if [[ $? != 0 ]]; then exit $?; fi
+    fi
+done
