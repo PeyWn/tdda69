@@ -37,5 +37,7 @@ def header_get_size(heap, pointer):
     return MemSize
 
 def header_set_size(heap, pointer, size):
-    pass
-  
+    header = heap[pointer : pointer+4]
+    header[3] = header[3] & 31
+    bina = byte(size)
+    print(pina)
