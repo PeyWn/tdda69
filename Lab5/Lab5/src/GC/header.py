@@ -38,6 +38,7 @@ def header_get_size(heap, pointer):
 
 def header_set_size(heap, pointer, size):
     header = heap[pointer : pointer+4]
-    header[3] = header[3] & 31
-    bina = byte(size)
-    print(pina)
+    hsize = hex(size)
+    for i in range(len(bina)):
+        print(hsize[-i])
+        print(header[-i])
