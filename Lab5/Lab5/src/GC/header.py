@@ -31,7 +31,7 @@ def header_mark_as_bytes_array(heap, pointer):
     return heap
 
 def header_get_size(heap, pointer):
-    header = heap[pointer : pointer+3]
+    header = heap[pointer : pointer+4]
     header[3] = header[3] & 31
     MemSize = int.from_bytes(header, byteorder='little')
     return MemSize
