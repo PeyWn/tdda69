@@ -7,10 +7,34 @@ class heap(object):
     self.data             = bytearray(size)
     pass
   
-  # return the index to the begining of a block with size (in bytes)
+  '''
+  return the index to the begining of a block with size (in bytes)
+
+  free_space: a list of tuples where index 0 is a pointer to a header
+  and index 1 the headers size
+  '''
   def allocate(self, size):
-    pass
-  
+    pointer = 0
+    free_space       = [0]
+    while( pointer != -1 ):
+      header_size = header_get_size(self.data, pointer)
+
+      if header_size == size:
+        header_set_used_flag(self.data, pointer, 1)
+        return pointer
+
+      if header_get_used_flag(self.data, pointer) == 0:
+        free_space.append((pointer, header_size))
+
+      pointer = self.get_next_header_pointer(pointer)
+
+    best_fit = max(free_space, key=lambda elem:elem[1])
+    for space in free_space:
+      if abs(space[1] - size) < best_fit[1]:
+        best_fit = space
+    #TODO what if no find good spot
+    return space[0]
+
   # unallocate the memory at the given index
   def disallocate(self, pointer):
     pass
@@ -32,3 +56,11 @@ class heap(object):
     pointer = self.allocate(count)
     header_mark_as_bytes_array(self.data, pointer)
     return pointer
+
+
+  def get_next_header_pointer(self, pointer):
+    #TODO size of block form header to index
+    new_pointer = pointer + 4 + pointer_array_count(self.data, pointer)
+    if new_pointer > len(self.data):
+      return -1
+    return new_pointer
