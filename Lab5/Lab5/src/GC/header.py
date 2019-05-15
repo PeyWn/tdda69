@@ -37,8 +37,10 @@ def header_get_size(heap, pointer):
     return MemSize
 
 def header_set_size(heap, pointer, size):
-    header = heap[pointer : pointer+4]
-    hsize = hex(size)
-    for i in range(len(hsize)):
-        print(hsize[-i])
-        print(header[-i])
+    heap[pointer] = size & 255
+    heap[pointer + 1] = (size >> 8) & 255
+    heap[pointer + 2] = (size >> 16) & 255
+    flags = heap[pointer+3] & int('0xe0', 0)
+    heap[pointer + 3] = ((size >> 24) & int('0x1f', 0)) | flags
+    return heap
+
