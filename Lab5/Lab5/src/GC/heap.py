@@ -15,8 +15,8 @@ class heap(object):
   and index 1 the headers size
   '''
   def allocate(self, size):
-    free_space = self.free_space('Before alloc')
     success = False
+    free_space = self.free_space()
     tail_header = max(free_space, key=lambda elem:elem[0])
     best_fit = max(free_space, key=lambda elem:elem[1])
     for space in free_space:
@@ -37,8 +37,6 @@ class heap(object):
           size = size + diff
 
       self.set_used_and_size(best_fit[0], size, best_fit[1], new_tail_header)
-      self.free_space('After alloc')
-      print()
       return best_fit[0]
     return -1
 
@@ -58,7 +56,7 @@ class heap(object):
     loop = True
     while(loop):
       loop = False
-      free_space = self.free_space('Dealloc')
+      free_space = self.free_space()
       for e in range(len(free_space)-1):
         if sum(free_space[e])+4 == free_space[e+1][0]:
           pointer = free_space[e][0]
@@ -73,7 +71,7 @@ class heap(object):
         self.data = pointer_array_set(self.data, pointer, i, 0)
 
 
-  def free_space(self, msg = ''):
+  def free_space(self):
       header = 0
       free_space = []
       while(header != -1):
@@ -81,7 +79,6 @@ class heap(object):
         if header_get_used_flag(self.data, header) == 0:
           free_space.append((header, header_size))
         header = self.get_next_header_pointer(header)
-      print(msg, free_space)
       return free_space
 
   # Return the current total (allocatable) free space

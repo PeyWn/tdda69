@@ -43,4 +43,3 @@ def header_set_size(heap, pointer, size):
     flags = heap[pointer+3] & int('0xe0', 0)
     heap[pointer + 3] = ((size >> 24) & int('0x1f', 0)) | flags
     return heap
-
