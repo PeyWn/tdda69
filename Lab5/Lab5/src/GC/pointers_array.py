@@ -2,7 +2,7 @@ from .header import *
 import GC
 
 def pointer_array_count(heap, pointer):
-  return header_get_size(heap, pointer)/4
+  return int(header_get_size(heap, pointer)/4)
 
 def pointer_array_get(heap, pointer, index):
   return int.from_bytes(heap[pointer+4+index*4:pointer+8+index*4], byteorder='little')
