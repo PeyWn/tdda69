@@ -130,87 +130,87 @@ class Heap(unittest.TestCase):
   #   for i in range(0, 8):
   #     self.assertEqual(heap.data[pointer2 + i], 0)
   #
-  def test_desallocation_complex_2(self):
-    heap = GC.heap(1000)
-
-    pointer1 = heap.allocate(10)
-    pointer2 = heap.allocate(12)
-    pointer3 = heap.allocate(30)
-    pointer4 = heap.allocate(18)
-    pointer5 = heap.allocate(12)
-
-    self.assertEqual(pointer1, 0)
-    self.assertEqual(pointer2, 14)
-    self.assertEqual(pointer3, 30)
-    self.assertEqual(pointer4, 64)
-    self.assertEqual(pointer5, 86)
-
-    self.assertEqual(heap.total_free_space(), 894)
-    self.assertEqual(heap.total_allocated_space(), 82)
-
-    heap.disallocate(pointer1)
-    heap.disallocate(pointer3)
-    self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
-    self.assertEqual(GC.pointer_array_get(heap.data, pointer1, 0), pointer3)
-    self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
-    self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5 + 16)
-
-    heap.disallocate(pointer4)
-    self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
-    self.assertEqual(GC.header_get_size(heap.data, pointer3), 52)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
-    self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5 + 16)
-
-    pointer1 = heap.allocate(10)
-    self.assertEqual(pointer1, 0)
-    heap.disallocate(pointer1)
-
-    pointer3 = heap.allocate(30)
-    self.assertTrue(GC.header_get_used_flag(heap.data, pointer3))
-    self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
-    self.assertEqual(GC.pointer_array_get(heap.data, pointer1, 0), pointer4)
-
-    pointer4 = heap.allocate(18)
-
-    self.assertEqual(pointer1, 0)
-    self.assertEqual(pointer2, 14)
-    self.assertEqual(pointer3, 30)
-    self.assertEqual(pointer4, 64)
-    self.assertEqual(pointer5, 86)
-
-    heap.disallocate(pointer3)
-    heap.disallocate(pointer5)
-    self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
-    self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
-    self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
-    self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5)
-
-  # def test_best_fit(self):
+  # def test_desallocation_complex_2(self):
   #   heap = GC.heap(1000)
   #
   #   pointer1 = heap.allocate(10)
-  #   pointer2 = heap.allocate(18)
+  #   pointer2 = heap.allocate(12)
   #   pointer3 = heap.allocate(30)
-  #   pointer4 = heap.allocate(12)
+  #   pointer4 = heap.allocate(18)
   #   pointer5 = heap.allocate(12)
   #
   #   self.assertEqual(pointer1, 0)
   #   self.assertEqual(pointer2, 14)
-  #   self.assertEqual(pointer3, 36)
-  #   self.assertEqual(pointer4, 70)
+  #   self.assertEqual(pointer3, 30)
+  #   self.assertEqual(pointer4, 64)
   #   self.assertEqual(pointer5, 86)
   #
-  #   heap.disallocate(pointer2)
-  #   heap.disallocate(pointer4)
+  #   self.assertEqual(heap.total_free_space(), 894)
+  #   self.assertEqual(heap.total_allocated_space(), 82)
   #
-  #   pointer6 = heap.allocate(12)
-  #   self.assertEqual(pointer6, 70)
-  #   pointer7 = heap.allocate(16)
-  #   self.assertEqual(pointer7, 102)
+  #   heap.disallocate(pointer1)
+  #   heap.disallocate(pointer3)
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
+  #   self.assertEqual(GC.pointer_array_get(heap.data, pointer1, 0), pointer3)
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
+  #   self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5 + 16)
+  #
+  #   heap.disallocate(pointer4)
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer3), 52)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
+  #   self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5 + 16)
+  #
+  #   pointer1 = heap.allocate(10)
+  #   self.assertEqual(pointer1, 0)
+  #   heap.disallocate(pointer1)
+  #
+  #   pointer3 = heap.allocate(30)
+  #   self.assertTrue(GC.header_get_used_flag(heap.data, pointer3))
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
+  #   self.assertEqual(GC.pointer_array_get(heap.data, pointer1, 0), pointer4)
+  #
+  #   pointer4 = heap.allocate(18)
+  #
+  #   self.assertEqual(pointer1, 0)
+  #   self.assertEqual(pointer2, 14)
+  #   self.assertEqual(pointer3, 30)
+  #   self.assertEqual(pointer4, 64)
+  #   self.assertEqual(pointer5, 86)
+  #
+  #   heap.disallocate(pointer3)
+  #   heap.disallocate(pointer5)
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer1), 10)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer1))
+  #   self.assertEqual(GC.header_get_size(heap.data, pointer3), 30)
+  #   self.assertFalse(GC.header_get_used_flag(heap.data, pointer3))
+  #   self.assertEqual(GC.pointer_array_get(heap.data, pointer3, 0), pointer5)
+
+  def test_best_fit(self):
+    heap = GC.heap(1000)
+
+    pointer1 = heap.allocate(10)
+    pointer2 = heap.allocate(18)
+    pointer3 = heap.allocate(30)
+    pointer4 = heap.allocate(12)
+    pointer5 = heap.allocate(12)
+
+    self.assertEqual(pointer1, 0)
+    self.assertEqual(pointer2, 14)
+    self.assertEqual(pointer3, 36)
+    self.assertEqual(pointer4, 70)
+    self.assertEqual(pointer5, 86)
+
+    heap.disallocate(pointer2)
+    heap.disallocate(pointer4)
+
+    pointer6 = heap.allocate(12)
+    self.assertEqual(pointer6, 70)
+    pointer7 = heap.allocate(16)
+    self.assertEqual(pointer7, 102)
 
 if __name__ == '__main__':
   unittest.main()

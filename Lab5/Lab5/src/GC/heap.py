@@ -69,6 +69,7 @@ class heap(object):
     count = pointer_array_count(self.data, pointer)
     for i in range(count):
         self.data = pointer_array_set(self.data, pointer, i, 0)
+    return pointer
 
 
   def free_space(self):
