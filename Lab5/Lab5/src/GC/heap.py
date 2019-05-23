@@ -20,22 +20,24 @@ class heap(object):
     tail_header = max(free_space, key=lambda elem:elem[0])
     best_fit = max(free_space, key=lambda elem:elem[1])
     for space in free_space:
-      if abs(space[1] - size) < best_fit[1]:
+      if (abs(space[1] - size) < best_fit[1]) and (space[1] - size > 4 or space[1] == size):
         best_fit = space
         success = True
     if success:
-      new_tail_header = False
-      if tail_header == best_fit[0]:
-          new_tail_header = True
+      new_tail_header = True
+      if size == best_fit[1]:
+          new_tail_header = False
 
-      if size < best_fit[1]:
-        diff = best_fit[1] - size
-        if diff >= 4:
-          new_tail_header = True
-        else:
-          # if small diff allocate larger array
-          size = size + diff
+      # if size < best_fit[1]:
+      #   diff = best_fit[1] - size
+      #   if diff >= 4:
+      #     new_tail_header = True
+      #   else:
+      #     # if small diff allocate larger array
+      #     size = size + diff
 
+      print('To allocate: ', size)
+      print(free_space)
       self.set_used_and_size(best_fit[0], size, best_fit[1], new_tail_header)
       return best_fit[0]
     return -1
@@ -53,6 +55,7 @@ class heap(object):
   def disallocate(self, pointer):
     self.data = header_set_used_flag(self.data, pointer, 0)
 
+    free_space = []
     loop = True
     while(loop):
       loop = False
@@ -66,11 +69,20 @@ class heap(object):
           self.data = header_set_size(self.data, pointer, size+next_size+4)
           loop = True
 
+    print('To dealocate: ', pointer)
+    print(free_space)
+    self.free_block_memory(free_space, pointer)
+    return pointer
+
+  def free_block_memory(self, free_space, pointer):
     count = pointer_array_count(self.data, pointer)
     for i in range(count):
         self.data = pointer_array_set(self.data, pointer, i, 0)
-    return pointer
 
+    for e in range(len(free_space)-1):
+        header = free_space[e][0]
+        next_header = free_space[e+1][0]
+        self.data = pointer_array_set(self.data, header, 0, next_header)
 
   def free_space(self):
       header = 0
