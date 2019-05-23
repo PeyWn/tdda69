@@ -17,8 +17,8 @@ class token(Enum):
   op_divide     = 40,
   fn_count      = 100,
   fn_avg        = 101
-  
-  
+
+
 class ast(object):
   def __init__(self, token, **kwargs):
     self.token = token
