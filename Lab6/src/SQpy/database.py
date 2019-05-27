@@ -37,3 +37,49 @@ class database(object):
                   entry = entry._replace(**{query.columns[i]:query.values[i]})
 
           self.e_list[query.table].append(entry)
+
+      elif query.token == token.delete_from:
+          q = self.ast_op(query.where, query.table)
+          for e in q:
+            self.e_list[query.table].remove(e)
+
+
+
+  def ast_op(self, node, table_name):
+      if node.token == token.op_and:
+          res = []
+          for e in node.operands:
+              res.append(self.ast_op(e, table_name))
+
+          match = res[0]
+          for i in range(1, len(res)):
+              match = list(set(match).intersection(res[i]))
+          return match
+
+      elif node.token == token.op_equal:
+          res = []
+          for e in self.e_list[table_name]:
+              for id in node.operands[0].identifier:
+                  if e._asdict()[id] == node.operands[1]:
+                      res.append(e)
+          return res
+
+      elif node.token == token.op_inferior:
+          res = []
+          for e in self.e_list[table_name]:
+              for id in node.operands[0].identifier:
+                  if e._asdict()[id] < node.operands[1]:
+                      res.append(e)
+          return res
+
+      elif node.token == token.op_superior:
+          res = []
+          for e in self.e_list[table_name]:
+              for id in node.operands[0].identifier:
+                  if e._asdict()[id] > node.operands[1]:
+                      res.append(e)
+          return res
+
+      elif node.token == token.op_divide:
+          print('divide inte implementerad')
+          pass
