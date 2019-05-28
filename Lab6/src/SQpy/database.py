@@ -43,6 +43,40 @@ class database(object):
           for e in q:
             self.e_list[query.table].remove(e)
 
+      elif query.token == token.update:
+          q_set = self.ast_op(query.where, query.table)
+          for e in q_set:
+              index, entry = 0, None
+              for i, x in enumerate(self.e_list[query.table]):
+                  if x == e:
+                      index = i
+                      entry = e
+                      break;
+
+              for s in query.set:
+                  entry = entry._replace(**{s[0]:s[1]})
+              self.e_list[query.table][i] = entry
+
+      elif query.token == token.select:
+          if isinstance(query.columns, ast) and query.columns.token == token.star:
+              return self.e_list[query.from_table]
+
+          else:
+              row = namedtuple('row', query.columns)
+              ret = []
+              values = []
+              for e in self.e_list[query.from_table]:
+                  for id in query.columns:
+                      values.append(e._asdict()[id])
+
+                  entry = row._make(values)
+                  ret.append(entry)
+                  values = []
+              return ret
+
+
+
+
 
 
   def ast_op(self, node, table_name):
