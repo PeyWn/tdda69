@@ -39,12 +39,12 @@ class database(object):
           self.e_list[query.table].append(entry)
 
       elif query.token == token.delete_from:
-          q = self.ast_op(query.where, query.table)
+          q = self.ast_op(query.where, self.e_list[query.table])
           for e in q:
             self.e_list[query.table].remove(e)
 
       elif query.token == token.update:
-          q_set = self.ast_op(query.where, query.table)
+          q_set = self.ast_op(query.where, self.e_list[query.table])
           for e in q_set:
               index, entry = 0, None
               for i, x in enumerate(self.e_list[query.table]):
@@ -75,7 +75,7 @@ class database(object):
 
               res = []
               try:
-                  entries = self.ast_op(query.where, query.from_table)
+                  entries = self.ast_op(query.where, self.e_list[query.from_table])
               except:
                   entries = self.e_list[query.from_table]
 
@@ -85,10 +85,7 @@ class database(object):
                       if isinstance(f, str):
                           values.append(e._asdict()[f])
                       else:
-                        if f[0].token == token.op_divide:
-                            for id in f[0].operands[0].identifier:
-                                value = e._asdict()[id]/f[0].operands[1]
-                                values.append(value)
+                          values.append(self.ast_op(f[0], [e]))
 
                   res.append(row._make(values))
               return res
@@ -98,11 +95,11 @@ class database(object):
 
 
 
-  def ast_op(self, node, table_name):
+  def ast_op(self, node, entry_list):
       if node.token == token.op_and:
           res = []
           for e in node.operands:
-              res.append(self.ast_op(e, table_name))
+              res.append(self.ast_op(e, entry_list))
 
           match = res[0]
           for i in range(1, len(res)):
@@ -111,7 +108,7 @@ class database(object):
 
       elif node.token == token.op_equal:
           res = []
-          for e in self.e_list[table_name]:
+          for e in entry_list:
               for id in node.operands[0].identifier:
                   if e._asdict()[id] == node.operands[1]:
                       res.append(e)
@@ -119,7 +116,7 @@ class database(object):
 
       elif node.token == token.op_inferior:
           res = []
-          for e in self.e_list[table_name]:
+          for e in entry_list:
               for id in node.operands[0].identifier:
                   if e._asdict()[id] < node.operands[1]:
                       res.append(e)
@@ -127,8 +124,15 @@ class database(object):
 
       elif node.token == token.op_superior:
           res = []
-          for e in self.e_list[table_name]:
+          for e in entry_list:
               for id in node.operands[0].identifier:
                   if e._asdict()[id] > node.operands[1]:
                       res.append(e)
+          return res
+
+      elif node.token == token.op_divide:
+          res = []
+          for e in entry_list:
+              for id in node.operands[0].identifier:
+                  res = e._asdict()[id]/node.operands[1]
           return res
