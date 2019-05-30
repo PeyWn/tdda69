@@ -62,17 +62,31 @@ class database(object):
               return self.e_list[query.from_table]
 
           else:
-              row = namedtuple('row', query.columns)
-              ret = []
-              values = []
-              for e in self.e_list[query.from_table]:
-                  for id in query.columns:
-                      values.append(e._asdict()[id])
 
-                  entry = row._make(values)
-                  ret.append(entry)
+              fields = []
+              for e in query.columns:
+                  if isinstance(e, str):
+                      fields.append(e)
+                  else:
+                      fields.append(e[1])
+
+              row = namedtuple('row', fields)
+
+
+              res = []
+              for e in self.e_list[query.from_table]:
                   values = []
-              return ret
+                  for f in query.columns:
+                      if isinstance(f, str):
+                          values.append(e._asdict()[f])
+                      else:
+                        if f[0].token == token.op_divide:
+                            for id in f[0].operands[0].identifier:
+                                value = e._asdict()[id]/f[0].operands[1]
+                                values.append(value)
+
+                  res.append(row._make(values))
+              return res
 
 
 
@@ -113,7 +127,3 @@ class database(object):
                   if e._asdict()[id] > node.operands[1]:
                       res.append(e)
           return res
-
-      elif node.token == token.op_divide:
-          print('divide inte implementerad')
-          pass
