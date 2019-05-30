@@ -74,7 +74,12 @@ class database(object):
 
 
               res = []
-              for e in self.e_list[query.from_table]:
+              try:
+                  entries = self.ast_op(query.where, query.from_table)
+              except:
+                  entries = self.e_list[query.from_table]
+
+              for e in entries:
                   values = []
                   for f in query.columns:
                       if isinstance(f, str):
